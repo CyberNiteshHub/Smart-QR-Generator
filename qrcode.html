@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: url('backgroundimg.png') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 80%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button#generateButton {
+            background-color: #007bff;
+            display: block;
+            margin: 0 auto;
+        }
+        button#generateButton:hover {
+            background-color: #0056b3;
+        }
+        button#backButton {
+            background-color: #dc3545;
+            display: none;
+        }
+        button#backButton:hover {
+            background-color: #c82333;
+        }
+        button#goButton {
+            background-color: #28a745;
+            display: none;
+        }
+        button#goButton:hover {
+            background-color: #218838;
+        }
+        button#downloadButton {
+            background-color: #007bff; /* Blue color */
+            display: none;
+        }
+        button#downloadButton:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+        #qrcode {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .button-group button {
+            margin: 0 5px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>QR Code Generator</h1>
+        <input type="text" id="urlInput" placeholder="Enter URL here" onkeyup="checkEnter(event)" />
+        <button id="generateButton" onclick="generateQRCode()">Generate QR Code</button>
+        <div id="qrcode"></div>
+        <div class="button-group">
+            <button id="backButton" onclick="reset()" style="display:none;">Back</button>
+            <button id="downloadButton" onclick="downloadQRCode()" style="display:none;">Download QR Code</button>
+            <button id="goButton" onclick="openLink()" style="display:none;">GO</button>
+        </div>
+    </div>
+
+    <script>
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                generateQRCode();
+            }
+        }
+
+        function generateQRCode() {
+            const url = document.getElementById('urlInput').value.trim();
+            if (url) {
+                $('#qrcode').empty();
+                $('#qrcode').qrcode({
+                    text: url
+                });
+
+                $('#goButton, #backButton, #downloadButton').show();
+                document.getElementById('goButton').setAttribute('data-url', url);
+            } else {
+                alert('Please enter a URL.');
+                reset();
+            }
+        }
+
+        function openLink() {
+            const url = document.getElementById('goButton').getAttribute('data-url');
+            if (url) {
+                window.open(url, '_blank');
+            }
+        }
+
+        function reset() {
+            document.getElementById('urlInput').value = '';
+            $('#qrcode').empty();
+            $('#goButton, #backButton, #downloadButton').hide();
+        }
+
+        // ✅ Updated function for proper QR code download
+        function downloadQRCode() {
+            const qrDiv = document.getElementById('qrcode');
+            if (!qrDiv.hasChildNodes()) {
+                alert("Please generate a QR code first.");
+                return;
+            }
+
+            const qrCanvas = qrDiv.querySelector('canvas');
+            if (!qrCanvas) {
+                alert("QR code generation issue. Please try again.");
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.href = qrCanvas.toDataURL('image/png');
+            link.download = 'qrcode.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
